@@ -12,12 +12,18 @@ from .config import Config
 
 def setup_logging():
     """Set up logging configuration."""
+    # Use a writable directory for log files
+    import os
+    log_dir = os.path.expanduser('~/Library/Logs')
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, 'openfda_mcp.log')
+    
     logging.basicConfig(
         level=getattr(logging, Config.LOG_LEVEL.upper()),
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('openfda_mcp.log')
+            logging.StreamHandler(sys.stderr),  # Use stderr for MCP compatibility
+            logging.FileHandler(log_file)
         ]
     )
 
