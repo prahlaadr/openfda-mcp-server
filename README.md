@@ -1,6 +1,6 @@
 # OpenFDA MCP Server
 
-[![Test](https://github.com/yourusername/openfda-mcp-server/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/openfda-mcp-server/actions/workflows/test.yml)
+[![Test](https://github.com/prahlaadr/openfda-mcp-server/actions/workflows/test.yml/badge.svg)](https://github.com/prahlaadr/openfda-mcp-server/actions/workflows/test.yml)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -20,17 +20,18 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 
 ### Installation
 
+**Option 1: Direct Installation with pipx (Recommended)**
+```bash
+pipx install git+https://github.com/prahlaadr/openfda-mcp-server.git
+```
+
+**Option 2: Development Installation**
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/openfda-mcp-server.git
+git clone https://github.com/prahlaadr/openfda-mcp-server.git
 cd openfda-mcp-server
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+# Install in development mode
 pip install -e .
 ```
 
@@ -44,16 +45,18 @@ openfda-mcp-server
 python -m openfda_mcp_server.run_server
 ```
 
-## MCP Client Configuration
+## Claude Desktop Configuration
 
-Add to your MCP client's configuration file:
+To use with Claude Desktop, add this to your MCP configuration file:
+
+**Location**: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 
 ```json
 {
   "mcpServers": {
     "openfda": {
-      "command": "openfda-mcp-server",
-      "args": [],
+      "command": "/Users/yourusername/.local/pipx/venvs/openfda-mcp-server/bin/python",
+      "args": ["-m", "openfda_mcp_server.run_server"],
       "env": {
         "LOG_LEVEL": "INFO"
       }
@@ -61,6 +64,27 @@ Add to your MCP client's configuration file:
   }
 }
 ```
+
+**Note**: Replace `/Users/yourusername/` with your actual home directory path.
+
+### Alternative Configuration (Direct Command)
+```json
+{
+  "mcpServers": {
+    "openfda": {
+      "command": "openfda-mcp-server",
+      "env": {
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
+```
+
+After configuration, restart Claude Desktop and you can ask questions like:
+- "Search for cardiac medical devices"
+- "Find Class II surgical instruments"
+- "What are the FDA classifications for stethoscopes?"
 
 ## Available Tools
 
@@ -113,12 +137,15 @@ python -m pytest test_*.py --cov=openfda_mcp_server
 
 ```
 openfda-mcp-server/
+├── .github/workflows/       # CI/CD pipeline
 ├── openfda_mcp_server/      # Main package
 │   ├── __init__.py
 │   ├── config.py           # Configuration management
 │   ├── main.py            # MCP server implementation
 │   └── run_server.py      # Entry point
-├── test_*.py              # Test files
+├── test_basic.py          # Core functionality tests
+├── test_errors.py         # Error handling tests
+├── test_integration.py    # API integration tests
 ├── requirements.txt       # Dependencies
 ├── setup.py              # Package setup
 └── README.md             # This file
@@ -130,6 +157,7 @@ This server uses the OpenFDA Device Classification API:
 - **Endpoint**: https://api.fda.gov/device/classification.json
 - **Documentation**: https://open.fda.gov/apis/device/classification/
 - **Rate Limits**: 240 requests per minute (per IP)
+- **Total Records**: 6,978+ device classifications available
 
 ## Error Handling
 
@@ -151,13 +179,33 @@ The server includes comprehensive error handling for:
   openfda-mcp-server
   ```
 
-### Configuration File
+### Logs
 
-The server uses `config.py` for centralized configuration:
-- API endpoints and timeouts
-- Retry logic parameters
-- Validation limits
-- Default values
+The server creates logs in:
+- **macOS**: `~/Library/Logs/openfda_mcp.log`
+- **Console**: Real-time output via stderr
+
+## Troubleshooting
+
+### Claude Desktop Connection Issues
+
+1. **Verify Installation**:
+   ```bash
+   which openfda-mcp-server
+   openfda-mcp-server  # Should start without errors
+   ```
+
+2. **Check Configuration**:
+   ```bash
+   python3 -m json.tool "~/Library/Application Support/Claude/claude_desktop_config.json"
+   ```
+
+3. **View Logs**:
+   ```bash
+   tail -f ~/Library/Logs/openfda_mcp.log
+   ```
+
+4. **Restart Claude Desktop** after configuration changes
 
 ## Contributing
 
@@ -189,8 +237,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 🐛 [Report bugs](https://github.com/yourusername/openfda-mcp-server/issues)
-- 💡 [Request features](https://github.com/yourusername/openfda-mcp-server/issues)
+- 🐛 [Report bugs](https://github.com/prahlaadr/openfda-mcp-server/issues)
+- 💡 [Request features](https://github.com/prahlaadr/openfda-mcp-server/issues)
 - 📖 [OpenFDA API Documentation](https://open.fda.gov/apis/)
 
 ---
