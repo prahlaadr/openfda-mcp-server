@@ -1,70 +1,198 @@
-# OpenFDA MCP Server - Device Classifications
+# OpenFDA MCP Server
 
-A Model Context Protocol (MCP) server that provides access to FDA device classification data.
+[![Test](https://github.com/yourusername/openfda-mcp-server/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/openfda-mcp-server/actions/workflows/test.yml)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that provides access to FDA device classification data through the [OpenFDA API](https://open.fda.gov/).
 
 ## Features
 
-- Search FDA device classifications by name, class, or medical specialty
-- Configurable result limits (1-1000 results)
-- Comprehensive error handling
-- Structured, readable output
+- 🔍 Search FDA device classifications by name, class, or medical specialty
+- ⚡ Fast, async API calls with proper error handling
+- 📊 Configurable result limits (1-1000 results)
+- 🛡️ Comprehensive input validation and sanitization
+- 📝 Structured, readable output format
+- 🔄 Automatic retry logic for network issues
+- 📋 Extensive logging and monitoring
 
-## Installation
+## Quick Start
 
-1. Clone this repository
-2. Create virtual environment: `python -m venv venv`
-3. Activate environment: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
-4. Install dependencies: `pip install -r requirements.txt`
+### Installation
 
-## Usage
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/openfda-mcp-server.git
+cd openfda-mcp-server
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+pip install -e .
+```
 
 ### Running the Server
+
 ```bash
-python main.py
+# Using the installed command
+openfda-mcp-server
+
+# Or directly with Python
+python -m openfda_mcp_server.run_server
+```
+
+## MCP Client Configuration
+
+Add to your MCP client's configuration file:
+
+```json
+{
+  "mcpServers": {
+    "openfda": {
+      "command": "openfda-mcp-server",
+      "args": [],
+      "env": {
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}
 ```
 
 ## Available Tools
 
 ### search_device_classifications
-Search FDA device classifications.
+
+Search FDA device classifications with flexible query options.
 
 **Parameters:**
-- `search` (optional): Search query string
+- `search` (optional): Search query string for device names, classifications, or medical specialties
 - `limit` (optional): Number of results to return (1-1000, default: 10)
 
 **Examples:**
+
 ```json
+// Search for stethoscopes
 {"search": "stethoscope", "limit": 5}
+
+// Get latest 20 classifications
 {"limit": 20}
+
+// Search for cardiac devices
 {"search": "cardiac"}
 ```
 
-## Testing
+**Response Format:**
 
-Run all tests:
+The tool returns formatted markdown with:
+- Device name and classification
+- Medical specialty
+- Regulation number
+- Product code
+- Total results count
+
+## Development
+
+### Running Tests
+
 ```bash
+# Run all tests
 python -m pytest test_*.py -v
+
+# Run specific test file
+python -m pytest test_integration.py -v
+
+# Run with coverage
+python -m pytest test_*.py --cov=openfda_mcp_server
+```
+
+### Project Structure
+
+```
+openfda-mcp-server/
+├── openfda_mcp_server/      # Main package
+│   ├── __init__.py
+│   ├── config.py           # Configuration management
+│   ├── main.py            # MCP server implementation
+│   └── run_server.py      # Entry point
+├── test_*.py              # Test files
+├── requirements.txt       # Dependencies
+├── setup.py              # Package setup
+└── README.md             # This file
 ```
 
 ## API Information
 
 This server uses the OpenFDA Device Classification API:
-- Endpoint: https://api.fda.gov/device/classification.json
-- Documentation: https://open.fda.gov/apis/device/classification/
+- **Endpoint**: https://api.fda.gov/device/classification.json
+- **Documentation**: https://open.fda.gov/apis/device/classification/
+- **Rate Limits**: 240 requests per minute (per IP)
 
 ## Error Handling
 
-The server handles various error conditions:
-- Network connectivity issues
-- API rate limiting
-- Invalid parameters
-- API server errors
-- Malformed responses
+The server includes comprehensive error handling for:
+- ❌ Network connectivity issues
+- ⏱️ API rate limiting (with helpful retry messages)
+- 🔍 Invalid search parameters
+- 🚫 API server errors (500+ status codes)
+- 📝 Malformed API responses
+- 🔄 Automatic retry logic for transient failures
 
-## Logging
+## Configuration
 
-The server logs important events and errors. Set log level via environment:
+### Environment Variables
+
+- `LOG_LEVEL`: Set logging verbosity (DEBUG, INFO, WARNING, ERROR)
+  ```bash
+  export LOG_LEVEL=DEBUG
+  openfda-mcp-server
+  ```
+
+### Configuration File
+
+The server uses `config.py` for centralized configuration:
+- API endpoints and timeouts
+- Retry logic parameters
+- Validation limits
+- Default values
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Setup
+
 ```bash
-export LOG_LEVEL=DEBUG
-python main.py
+# Install development dependencies
+pip install -r requirements.txt
+
+# Run tests before committing
+python -m pytest test_*.py -v
 ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built for the [Model Context Protocol](https://modelcontextprotocol.io/)
+- Powered by [OpenFDA API](https://open.fda.gov/)
+- Inspired by the need for accessible FDA device data
+
+## Support
+
+- 🐛 [Report bugs](https://github.com/yourusername/openfda-mcp-server/issues)
+- 💡 [Request features](https://github.com/yourusername/openfda-mcp-server/issues)
+- 📖 [OpenFDA API Documentation](https://open.fda.gov/apis/)
+
+---
+
+Made with ❤️ for the MCP community
